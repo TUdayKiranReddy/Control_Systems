@@ -29,7 +29,7 @@ def first_order(tau):
 	
 	mag = -10*np.log10((w*tau)**2 + 1)
 	phi = -180*np.arctan(w*tau)/np.pi
-
+	factor = 0.1**0.5
 	w0 = w[w <= 1/tau]
 	w1 = w[w > 1/tau]
 	mag0 = (np.zeros(w0.shape))
@@ -57,7 +57,7 @@ def secound_order(eta, wn):
 	phi_pos = phi[phi>0]
 	phi_neg = phi[phi<0]
 	phi = np.append(phi_neg, -180 + phi_pos)
-	
+	factor = 0.1
 	w0 = w[w <= wn]
 	w1 = w[w > wn]
 	mag0 = (np.zeros(w0.shape))
@@ -108,25 +108,25 @@ def constant_factor(k, bode_raw):
 	
 	return bode
 	
-w = np.linspace(1e-2, 1e3, 1e6)			### omega range
-factor = 0.1**0.5							### factor for phase assymptotes
+w = np.linspace(1e-2, 1e4, 1e6)			### omega range
 
-bode = sub(secound_order(0.1, 100), first_order(0.5))			
-bode = add(bode, denominator_s())
-bode = constant_factor(1, bode)
+eta = np.linspace(0.1, 1, 4)
 
-mag = bode['mag']
-mag_assym = bode['mag_assym']
-phi = bode['phi']
-phi_assym = bode['phi_assym']
-
+bode = dict()
 
 plt.figure()
-plt.semilogx(w, mag)
-plt.semilogx(w, mag_assym, '--r')
+for i in eta:
+	bode = secound_order(i, 100)
+	mag = bode['mag']
+	mag_assym = bode['mag_assym']
+	phi = bode['phi']
+	phi_assym = bode['phi_assym']
+	plt.semilogx(w, mag, label=r'$\zeta$'+str(i))
+	plt.semilogx(w, mag_assym, '--')
 plt.title('Magnitude')
 plt.xlabel(r'$\omega$')
 plt.ylabel('dB')
+#plt.legend()
 plt.grid()
 
 plt.figure()
@@ -135,6 +135,7 @@ plt.semilogx(w, phi_assym, '--g')
 plt.title('Phase('+r'$\phi$'+')')
 plt.xlabel(r'$\omega$')
 plt.ylabel('o')
+#plt.ylim([-180, 180])
 plt.grid()
 
 plt.show()
