@@ -2,6 +2,29 @@ import control as C
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def numerator_s():
+	mag = 20*np.log10(w)
+	phi = np.pi*np.ones(w.shape)/2
+	
+	bode = dict()
+	bode['mag'] = mag
+	bode['mag_assym'] = mag
+	bode['phi'] = phi
+	bode['phi_assym'] = phi
+	return bode
+
+def denominator_s():
+	mag = -20*np.log10(w)
+	phi = -1*np.pi*np.ones(w.shape)/2
+	
+	bode = dict()
+	bode['mag'] = mag
+	bode['mag_assym'] = mag
+	bode['phi'] = phi
+	bode['phi_assym'] = phi
+	return bode
+	
 def first_order(tau):
 	
 	mag = -10*np.log10((w*tau)**2 + 1)
@@ -86,9 +109,10 @@ def constant_factor(k, bode_raw):
 	return bode
 	
 w = np.linspace(1e-2, 1e3, 1e6)			### omega range
-factor = 0.2							### factor for phase assymptotes
+factor = 0.1**0.5							### factor for phase assymptotes
 
-bode = sub(secound_order(0.1, 100), first_order(0.5))			## TF = (s/2 + 1)(1e4)/(s^2 + 20s + 1e4)
+bode = sub(secound_order(0.1, 100), first_order(0.5))			
+bode = add(bode, denominator_s())
 bode = constant_factor(1, bode)
 
 mag = bode['mag']
